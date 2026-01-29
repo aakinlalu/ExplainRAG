@@ -82,6 +82,17 @@ class RAGPipeline:
             query_embedding=query_embedding,
             top_k=request.top_k
         )
+        # Prepare human-readable results for display
+        retrieved_results = [
+            {
+                "rank": i + 1,
+                "filename": r["metadata"].get("filename", "Unknown"),
+                "score": round(r["score"] * 100, 1),
+                "content": r["content"]  # Full content, not truncated
+            }
+            for i, r in enumerate(search_results[:5])  # Top 5 results
+        ]
+        
         pipeline_steps.append(PipelineStep(
             step_number=3,
             name="Vector Search",
@@ -90,7 +101,8 @@ class RAGPipeline:
             data={
                 "top_k": request.top_k,
                 "results_found": len(search_results),
-                "similarity_scores": [r["score"] for r in search_results]
+                "similarity_scores": [r["score"] for r in search_results],
+                "retrieved_results": retrieved_results
             },
             duration_ms=int((time.time() - start_time) * 1000)
         ))

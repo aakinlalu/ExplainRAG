@@ -40,6 +40,10 @@ export const deleteAllDocuments = async () => {
   return response.data;
 };
 
+export const getDocumentDownloadUrl = (documentId) => {
+  return `${API_BASE_URL}/api/documents/${documentId}/download`;
+};
+
 // Query APIs
 export const queryRAG = async (query, topK = 5) => {
   const response = await api.post('/api/query', {
