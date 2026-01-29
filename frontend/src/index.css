@@ -625,6 +625,15 @@ code, pre {
   border-left: 3px solid var(--primary);
   border: 1px solid var(--border-color);
   border-left: 3px solid var(--primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.source-item:hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-light);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .source-score {

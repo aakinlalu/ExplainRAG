@@ -87,9 +87,57 @@ const PipelineStep = ({ step, index, isExpanded, onToggle }) => {
             className="step-details"
             style={{ marginTop: '0.75rem' }}
           >
-            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-              {JSON.stringify(stepDetails, null, 2)}
-            </pre>
+            {/* Special rendering for Vector Search step with retrieved results */}
+            {step.name === 'Vector Search' && stepDetails.retrieved_results ? (
+              <div>
+                <div style={{ marginBottom: '0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <strong>Top K:</strong> {stepDetails.top_k} | <strong>Results Found:</strong> {stepDetails.results_found}
+                </div>
+                <div style={{ marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>Top 5 Retrieved Results:</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {stepDetails.retrieved_results.map((result, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '0.75rem',
+                        background: 'var(--bg-tertiary)',
+                        borderRadius: 'var(--radius-sm)',
+                        borderLeft: '3px solid var(--primary)',
+                        fontSize: '0.8rem'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          #{result.rank} - {result.filename}
+                        </span>
+                        <span style={{ 
+                          color: 'var(--secondary)', 
+                          fontWeight: 500,
+                          background: 'var(--bg-secondary)',
+                          padding: '0.125rem 0.5rem',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.75rem'
+                        }}>
+                          {result.score}% match
+                        </span>
+                      </div>
+                      <div style={{ 
+                        color: 'var(--text-muted)', 
+                        lineHeight: 1.5,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word'
+                      }}>
+                        {result.content || result.content_preview}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                {JSON.stringify(stepDetails, null, 2)}
+              </pre>
+            )}
           </motion.div>
         )}
         

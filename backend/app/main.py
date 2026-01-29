@@ -7,6 +7,7 @@ import time
 import shutil
 from typing import List
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -250,10 +251,11 @@ async def upload_document(
             processing_steps=processing_steps
         )
         
-    finally:
-        # Clean up uploaded file
+    except Exception as e:
+        # Clean up uploaded file only on error
         if os.path.exists(upload_path):
             os.remove(upload_path)
+        raise e
 
 
 @app.get("/api/documents", response_model=DatabaseStats)
@@ -313,6 +315,44 @@ async def delete_all_documents():
         deleted_count=deleted_count,
         message=f"Successfully deleted all data ({deleted_count} chunks, {files_deleted} file(s) removed)"
     )
+
+
+@app.get("/api/documents/{document_id}/download")
+async def download_document(document_id: str):
+    """
+    Download the original uploaded document.
+    
+    Args:
+        document_id: The unique identifier of the document
+        
+    Returns:
+        The original document file
+    """
+    upload_dir = "./data/uploads"
+    
+    # Find the file with this document_id
+    if not os.path.exists(upload_dir):
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    for filename in os.listdir(upload_dir):
+        if filename.startswith(document_id):
+            file_path = os.path.join(upload_dir, filename)
+            if os.path.isfile(file_path):
+                # Get the original filename from the database
+                stats = vector_db_service.get_stats()
+                original_filename = None
+                for doc in stats.get("documents", []):
+                    if doc.get("document_id") == document_id:
+                        original_filename = doc.get("filename")
+                        break
+                
+                return FileResponse(
+                    path=file_path,
+                    filename=original_filename or filename,
+                    media_type="application/octet-stream"
+                )
+    
+    raise HTTPException(status_code=404, detail="Document not found")
 
 
 # ============== Query Endpoints ==============

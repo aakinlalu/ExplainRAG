@@ -380,7 +380,7 @@ function App() {
             <div className="logo-icon">
               <BookOpen size={24} />
             </div>
-            <span>ExplanRAG</span>
+            <span>ExplainRAG</span>
           </div>
 
           <nav className="nav-tabs">

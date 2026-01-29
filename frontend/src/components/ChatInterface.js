@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, User, Bot, BookOpen, Loader } from 'lucide-react';
+import { Send, User, Bot, BookOpen, Loader, ExternalLink } from 'lucide-react';
+import { getDocumentDownloadUrl } from '../services/api';
 
 const ChatInterface = ({ onSendMessage, messages, loading, pipelineSteps }) => {
   const [input, setInput] = useState('');
@@ -66,14 +67,33 @@ const ChatInterface = ({ onSendMessage, messages, loading, pipelineSteps }) => {
                       Retrieved Sources ({message.sources.length})
                     </div>
                     {message.sources.map((source, i) => (
-                      <div key={i} className="source-item">
+                      <div 
+                        key={i} 
+                        className="source-item"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          const documentId = source.metadata?.document_id;
+                          if (documentId) {
+                            window.open(getDocumentDownloadUrl(documentId), '_blank');
+                          }
+                        }}
+                      >
                         <div style={{ 
                           display: 'flex', 
                           justifyContent: 'space-between',
+                          alignItems: 'center',
                           marginBottom: '0.25rem'
                         }}>
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ 
+                            fontWeight: 500,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            color: 'var(--primary)',
+                            textDecoration: 'underline'
+                          }}>
                             {source.metadata?.filename || 'Unknown source'}
+                            <ExternalLink size={12} />
                           </span>
                           <span className="source-score">
                             {(source.score * 100).toFixed(1)}% match
