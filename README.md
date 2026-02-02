@@ -43,7 +43,8 @@ cp .env.example .env
 uv sync
 
 # Run the server
-
+```bash
+uv run uvicorn app.main:app
 
 ```
 

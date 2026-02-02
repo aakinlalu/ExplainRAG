@@ -142,50 +142,6 @@ class VectorDBService:
         
         return formatted_results
     
-    def get_document_chunks(self, document_id: str) -> List[Dict[str, Any]]:
-        """
-        Get all chunks for a specific document.
-        
-        Args:
-            document_id: ID of the document
-            
-        Returns:
-            List of chunks with content and metadata
-        """
-        settings = get_settings()
-        table_name = settings.collection_name
-        
-        if table_name not in self.db.table_names():
-            return []
-        
-        table = self.db.open_table(table_name)
-        df = table.to_pandas()
-        
-        if df.empty:
-            return []
-        
-        # Filter by document_id
-        doc_chunks = df[df["document_id"] == document_id]
-        
-        if doc_chunks.empty:
-            return []
-        
-        # Sort by chunk_index and format results
-        doc_chunks = doc_chunks.sort_values("chunk_index")
-        
-        chunks = []
-        for _, row in doc_chunks.iterrows():
-            chunks.append({
-                "id": row.get("id", ""),
-                "chunk_index": int(row.get("chunk_index", 0)),
-                "content": row.get("content", ""),
-                "token_count": int(row.get("token_count", 0)),
-                "chunking_strategy": row.get("chunking_strategy", ""),
-                "filename": row.get("filename", "")
-            })
-        
-        return chunks
-    
     def get_all_documents(self) -> List[DocumentInfo]:
         """Get information about all stored documents."""
         settings = get_settings()
@@ -294,6 +250,49 @@ class VectorDBService:
         self.db.drop_table(table_name)
         
         return total_chunks
+    
+    def get_document_chunks(self, document_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all chunks for a specific document.
+        
+        Args:
+            document_id: ID of the document
+            
+        Returns:
+            List of chunks with their content and metadata
+        """
+        settings = get_settings()
+        table_name = settings.collection_name
+        
+        if table_name not in self.db.table_names():
+            return []
+        
+        table = self.db.open_table(table_name)
+        df = table.to_pandas()
+        
+        if df.empty:
+            return []
+        
+        # Filter by document_id
+        doc_chunks = df[df["document_id"] == document_id]
+        
+        if doc_chunks.empty:
+            return []
+        
+        # Sort by chunk_index and format results
+        doc_chunks = doc_chunks.sort_values("chunk_index")
+        
+        chunks = []
+        for _, row in doc_chunks.iterrows():
+            chunks.append({
+                "id": row.get("id", ""),
+                "content": row.get("content", ""),
+                "chunk_index": row.get("chunk_index", 0),
+                "token_count": row.get("token_count", 0),
+                "chunking_strategy": row.get("chunking_strategy", "")
+            })
+        
+        return chunks
 
 
 # Singleton instance

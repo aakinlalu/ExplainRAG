@@ -44,6 +44,11 @@ export const getDocumentDownloadUrl = (documentId) => {
   return `${API_BASE_URL}/api/documents/${documentId}/download`;
 };
 
+export const getDocumentChunks = async (documentId) => {
+  const response = await api.get(`/api/documents/${documentId}/chunks`);
+  return response.data;
+};
+
 // Query APIs
 export const queryRAG = async (query, topK = 5) => {
   const response = await api.post('/api/query', {
