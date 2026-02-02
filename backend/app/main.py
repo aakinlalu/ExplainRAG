@@ -317,6 +317,29 @@ async def delete_all_documents():
     )
 
 
+@app.get("/api/documents/{document_id}/chunks")
+async def get_document_chunks(document_id: str):
+    """
+    Get all chunks for a specific document.
+    
+    Args:
+        document_id: The unique identifier of the document
+        
+    Returns:
+        List of chunks with their content and metadata
+    """
+    chunks = vector_db_service.get_document_chunks(document_id)
+    
+    if not chunks:
+        raise HTTPException(status_code=404, detail="Document not found or has no chunks")
+    
+    return {
+        "document_id": document_id,
+        "total_chunks": len(chunks),
+        "chunks": chunks
+    }
+
+
 @app.get("/api/documents/{document_id}/download")
 async def download_document(document_id: str):
     """
